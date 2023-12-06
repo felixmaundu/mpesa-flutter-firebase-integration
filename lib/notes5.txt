@@ -1,0 +1,495 @@
+mpesa: ^2.0.2
+import 'package:mpesa/mpesa.dart';
+
+void main() {
+  final mpesa = Mpesa(
+    clientKey: "YOUR_CONSUMER_KEY_HERE",
+    clientSecret: "YOUR_CONSUMER_SECRET_HERE",
+    passKey: "YOUR_LNM_PASS_KEY_HERE",
+    environment: "sandbox",
+  );
+
+  mpesa
+      .lipaNaMpesa(
+        phoneNumber: "",
+        amount: 1,
+        businessShortCode: "",
+        callbackUrl: "",
+      )
+      .then((result) {})
+      .catchError((error) {});
+}
+more
+import 'package:flutter/material.dart';
+import 'package:mpesa/mpesa.dart';
+
+void main() => runApp(MyApp());
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: HomePage(),
+    );
+  }
+}
+
+class HomePage extends StatefulWidget {
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  Mpesa _mpesa = Mpesa(
+    clientKey: "",
+    clientSecret: "",
+    passKey: "",
+    environment: "sandbox",
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Container(
+        child: Center(
+          child: ElevatedButton(
+            child: Text("PAY"),
+            onPressed: () {
+              _mpesa
+                  .lipaNaMpesa(
+                    phoneNumber: "254...",
+                    amount: 1,
+                    businessShortCode: "174379",
+                    callbackUrl: "",
+                  )
+                  .then((result) {})
+                  .catchError((error) {});
+            },
+          ),
+        ),
+      ),
+    );
+  }
+}
+////////////////////////////////////////////////////////
+mpesadaraja: ^0.1.5
+
+import 'package:mpesadaraja/src/lipa_na_mpesa.dart';
+
+Future<void> main() async {
+  final stk = MpesaDaraja(
+    consumerKey: '',
+    consumerSecret: '',
+    passKey: 'bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919',
+  );
+
+  await stk.lipaNaMpesaStk(
+    "174379",
+    1,
+    "254798071520",
+    "174379",
+    "254798071520",
+    "https://mydomain.com/path",
+    "accountReference",
+    "transactionDesc",
+  );
+}
+
+MpesaDaraja stkpush = MpesaDaraja(
+   consumerKey:<>
+   consumerSecret:<>
+   passKey:<>
+ )
+
+ final  stkpush = MpesaDaraja(
+    consumerKey:<>
+    consumerSecret:<>
+    passKey:<>
+  )
+
+  await stk.lipaNaMpesaStk(
+    <BusinnessShortCode>,
+    <Amount>,
+    <PartyA>,
+    <PartB>,
+    <PhoneNumber>,
+    <CallBackUrl>,
+    <AccountReference>,
+    <TransactionDescription>,
+  );
+
+  Future<void> main() async {
+  final stk = MpesaDaraja(
+    consumerKey: '',
+    consumerSecret: '',
+    passKey: 'bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919',
+  );
+
+  await stk.lipaNaMpesaStk(
+    "174379",
+    1,
+    "254798071520",
+    "174379",
+    "254798071520",
+    "https://mydomain.com/path",
+    "accountReference",
+    "transactionDesc",
+  );
+}
+
+//////////////////////////////////////////////////////////////////
+flutter_mpesa_stk: ^1.0.1
+import 'package:flutter/material.dart';
+import 'package:flutter_mpesa_stk/flutter_mpesa_stk.dart';
+import 'package:flutter_mpesa_stk/models/Mpesa.dart';
+import 'package:flutter_mpesa_stk/models/MpesaResponse.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  // This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Mpesa STK Plugin Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: const MyHomePage(title: 'Flutter Mpesa STK Plugin Demo'),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key, required this.title});
+  final String title;
+
+  @override
+  State<MyHomePage> createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  final amountController = TextEditingController();
+  final phoneNumberController = TextEditingController();
+
+  @override
+  void dispose() {
+    amountController.dispose();
+    phoneNumberController.dispose();
+  }
+
+  bool loading = false;
+  void setLoading(bool value) {
+    setState(() {
+      loading = value;
+    });
+  }
+
+  void notify(String message) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  processSTK() async {
+    if (loading) {
+      return;
+    }
+    setLoading(true);
+    int amount = 0;
+    try {
+      amount = int.parse(amountController.value.text);
+    } catch (e) {
+      setLoading(false);
+      notify("Enter a valid amount");
+      return;
+    }
+
+    // preferrably to wrap this in a try and catch if the value inputted is not a valid int
+    if (amount < 0) {
+      notify("Enter a valid amount");
+      setLoading(false);
+      return;
+    }
+    //var instead of strong typing to ensure we validate phone number or get false if it fails
+    MpesaResponse response = await FlutterMpesaSTK(
+            "consumerKey",
+            "consumerSecret",
+            "stkPassword",
+            "shortcode",
+            "callbackURL",
+            "default Message")
+        .stkPush(Mpesa(amount, phoneNumberController.value.text));
+    if (response.status) {
+      print(response.body);
+      notify("successful stk push. please enter pin");
+    } else {
+      print(response.body);
+      notify("failed. please try again");
+    }
+    setLoading(false);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        // Here we take the value from the MyHomePage object that was created by
+        // the App.build method, and use it to set our appbar title.
+        title: Text(widget.title),
+      ),
+      body: Container(
+        padding: const EdgeInsets.all(12),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text(
+                'Click the button to trigger an STK push',
+                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 22),
+              ),
+              const SizedBox(
+                height: 12,
+              ),
+              TextField(
+                controller: amountController,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Enter the mpesa amount *',
+                  hintText: 'Amount',
+                ),
+              ),
+              const SizedBox(
+                height: 12,
+              ),
+              TextField(
+                controller: phoneNumberController,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Enter the phone number *',
+                  hintText: 'Amount',
+                ),
+              ),
+              TextButton(
+                  onPressed: () async {
+                    if (loading) {
+                      notify("processing");
+                      return;
+                    }
+                    await processSTK();
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: const BoxDecoration(
+                        color: Colors.red,
+                        borderRadius: BorderRadius.all(Radius.circular(8))),
+                    child: const Text(
+                      "Trigger STK push",
+                      style: TextStyle(color: Colors.white, fontSize: 18),
+                    ),
+                  ))
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+/////////////////////////////////////////////////////////////////////////
+flutter_mpesa_package: ^0.0.4
+import 'package:flutter/material.dart';
+import 'package:flutter_mpesa_package/enums.dart';
+import 'package:flutter_mpesa_package/flutter_mpesa_services.dart';
+import 'package:qr_flutter/qr_flutter.dart';
+
+void main() {
+  FlutterMpesa.initFlutterMpesa(
+    consumerKey: "",
+    consumerSecret: "",
+    securityCredential: "",
+  );
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  // This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(
+      home: Home(),
+    );
+  }
+}
+
+class Home extends StatefulWidget {
+  const Home({super.key});
+
+  @override
+  State<Home> createState() => _HomeState();
+}
+
+class _HomeState extends State<Home> {
+  String? qrText;
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          if (qrText != null)
+            QrImageView(
+              data: qrText!,
+              size: 200,
+            ),
+          ElevatedButton(
+            onPressed: () {
+              FlutterMpesa.accessToken(isLive: false)
+                  .then((value) => debugPrint(value));
+            },
+            child: const Text("ACCESS TOKEN"),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              FlutterMpesa.generateQRCode(
+                merchantName: "EIJI",
+                amount: 1,
+                referenceNumber: "referenceNumber",
+                creditPartyIdentifier: "23rw455",
+                qrTransactionType: QRTransactionType.bg,
+                size: 300,
+                isLive: false,
+              ).then((value) {
+                debugPrint(value);
+                setState(() {
+                  qrText = value;
+                });
+              });
+            },
+            child: const Text("GENERATE QR CODE"),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              FlutterMpesa.lipaNaMpesa(
+                businessShortCode: 174379,
+                phoneNumber: 254000000000,
+                amount: 1,
+                callBackUrl: "https://mydomain.com/path",
+                passKey: "YOUR PASS KEY",
+                accountReference: "EIJI",
+                transactionDescription: "transactionDescription",
+                isLive: false,
+              ).then((value) => debugPrint(value.toString()));
+            },
+            child: const Text("MPESA EXPRESS (LIPA NA MPESA)"),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              FlutterMpesa.customerToBusinessRegisterUrl(
+                businessShortCode: 600983,
+                c2bRegisterUrlResponseType:
+                    C2BRegisterUrlResponseType.completed,
+                confirmationUrl: "https://mydomain.com/confirmation",
+                validationUrl: "https://mydomain.com/validation",
+                isLive: false,
+              ).then((value) => debugPrint(value.toString()));
+            },
+            child: const Text("CUSTOMER TO BUSINESS REGISTER URL"),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              FlutterMpesa.businessToCustomer(
+                businessShortCode: 600988,
+                recipientPhoneNumber: 254000000000,
+                amount: 1,
+                b2cPaymentType: B2CPaymentType.salaryPayment,
+                initiatorName: "initiatorName",
+                queueTimeOutUrl: "https://mydomain.com/b2c/queue",
+                resultUrl: "https://mydomain.com/b2c/result",
+                remarks: "remarks",
+                occasion: "occasion",
+                isLive: false,
+              ).then((value) => debugPrint(value.toString()));
+            },
+            child: const Text("BUSINESS TO CUSTOMER"),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              FlutterMpesa.transactionStatus(
+                initiator: "HELLO",
+                transactionId: "OEI2AK4Q16",
+                partyA: 254000000000,
+                transactionStatusIdentifierType:
+                    TransactionStatusIdentifierType.organizationShortCode,
+                queueTimeOutUrl:
+                    'https://mydomain.com/TransactionStatus/queue/',
+                resultUrl: 'https://mydomain.com/TransactionStatus/result/',
+                occasion: 'occasion',
+                remarks: 'OK',
+                isLive: false,
+              ).then((value) => debugPrint(value.toString()));
+            },
+            child: const Text("TRANSACTION STATUS"),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              FlutterMpesa.accountBalance(
+                initiator: "initiator",
+                accountBalanceIdentifierType:
+                    AccountBalanceIdentifierType.tillNumber,
+                partyA: 600426,
+                resultUrl: "https://mydomain.com/AccountBalance/result/",
+                queueTimeOutUrl: "https://mydomain.com/AccountBalance/queue/",
+                remarks: "remarks",
+                isLive: false,
+              ).then((value) => debugPrint(value.toString()));
+            },
+            child: const Text("RETRIEVE ACCOUNT BALANCE"),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              FlutterMpesa.reversal(
+                initiator: "initiator",
+                amount: 5,
+                transactionID: "OEI2AK4Q16",
+                receiverParty: 600992,
+                resultUrl: "https://mydomain.com/Reversal/queue/",
+                queueTimeOutUrl: "https://mydomain.com/Reversal/result/",
+                remarks: "remarks",
+                occasion: "occasion",
+                reversalReceiverIdentifierType:
+                    ReversalReceiverIdentifierType.tillNumber,
+                isLive: false,
+              ).then((value) => debugPrint(value.toString()));
+            },
+            child: const Text("REVERSE TRANSACTION"),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              FlutterMpesa.taxRemittance(
+                initiator: "initiator",
+                amount: 1,
+                resultUrl: "https://mydomain.com/Reversal/queue/",
+                queueTimeOutUrl: "https://mydomain.com/Reversal/result/",
+                remarks: "remarks",
+                accountReference: '',
+                partyA: 2334,
+                partyB: 9866,
+                taxRemittanceReceiverIdentifierType:
+                    TaxRemittanceReceiverIdentifierType.msisdn,
+                taxRemittanceSenderIdentifierType:
+                    TaxRemittanceSenderIdentifierType.tillNumber,
+                isLive: false,
+              ).then((value) => debugPrint(value.toString()));
+            },
+            child: const Text("REVERSE TRANSACTION"),
+          ),
+        ],
+      ),
+    );
+  }
+}

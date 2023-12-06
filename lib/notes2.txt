@@ -1,0 +1,150 @@
+import 'package:flutter/material.dart';
+import 'package:mpesa_flutter_plugin/mpesa_flutter_plugin.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: PaymentPage(),
+    );
+  }
+}
+
+class PaymentPage extends StatefulWidget {
+  @override
+  _PaymentPageState createState() => _PaymentPageState();
+}
+
+class _PaymentPageState extends State<PaymentPage> {
+  TextEditingController amountController = TextEditingController();
+  TextEditingController phoneNumberController = TextEditingController();
+
+  Future<void> initiatePayment() async {
+    final amount = amountController.text;
+    final phoneNumber = phoneNumberController.text;
+
+    try {
+      // Replace these values with your actual M-Pesa credentials
+      MpesaFlutterPlugin.setConsumerKey('YOUR_CONSUMER_KEY');
+      MpesaFlutterPlugin.setConsumerSecret('YOUR_CONSUMER_SECRET');
+      MpesaFlutterPlugin.setSandbox(true); // Set to false for live environment
+
+      // Initialize the payment
+      dynamic transactionInitialisation = await MpesaFlutterPlugin
+      .initializeMpesaExpress(
+        businessShortCode: 'YOUR_BUSINESS_SHORTCODE',
+        phoneNumber: phoneNumber,
+        amount: double.parse(amount),
+        transactionDesc: 'Payment description',
+        callBackUrl: Uri.parse('YOUR_CALLBACK_URL'),
+        accountRef: 'Account reference',
+      );
+
+      // Handle the transaction response
+      if (transactionInitialisation['ResponseCode'] == '0') {
+        // Transaction initiated successfully
+        await FirebaseFirestore.instance.collection('transactions').add({
+          'amount': amount,
+          'phoneNumber': phoneNumber,
+          'status': 'initiated',
+          // Add other transaction details as needed
+        });
+
+        // Display success message or navigate to success screen
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Success'),
+              content: Text('Transaction initiated successfully'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      } else {
+        // Transaction failed
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Error'),
+              content: Text('Transaction initiation failed'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      }
+    } catch (e) {
+      print('Error: $e');
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Error'),
+            content: Text('An error occurred. Please try again later.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('M-Pesa Payment'),
+      ),
+      body: Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            TextField(
+              controller: amountController,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(labelText: 'Amount'),
+            ),
+            SizedBox(height: 16.0),
+            TextField(
+              controller: phoneNumberController,
+              keyboardType: TextInputType.phone,
+              decoration: InputDecoration(labelText: 'Phone Number'),
+            ),
+            SizedBox(height: 16.0),
+            ElevatedButton(
+              onPressed: initiatePayment,
+              child: Text('Make Payment'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

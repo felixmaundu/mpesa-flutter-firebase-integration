@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "369754342006",
+    "project_id": "test-module-app-3abc7",
+    "storage_bucket": "test-module-app-3abc7.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:369754342006:android:a1838096859313dc351557",
+        "android_client_info": {
+          "package_name": "com.example.safaricom_daraja_module"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBUTxYDXLhcPgNOFgOGNpoIq8mJQSXlDYc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
